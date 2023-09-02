@@ -25,7 +25,7 @@ func NewAppServer() *echo.Echo {
 	// basic ping handler
 	unsecured.GET("ping", PingHandler)
 
-	unsecured.GET("scale/", Scale)
+	unsecured.GET("scale", Scale)
 
 	return e
 }
