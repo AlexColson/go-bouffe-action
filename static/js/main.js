@@ -230,10 +230,9 @@ function fetchExistingEntries() {
         return response.json()
     })
     .then((json) => {
-        records = json['records']
-        for(var key in records) {
-            entry = records[key]
-            // console.log(entry)
+        for(var key in json) {
+            entry = json[key]
+            console.log(entry)
             addHTMLEntry(entry.id, entry.provider, entry.product ,entry.quantity, entry.weight);
         }
     })
