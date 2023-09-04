@@ -37,7 +37,7 @@ func CreateEntryHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"erreur": err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"id": entry.Id, "poids": entry.Weight})
+	return c.JSON(http.StatusOK, map[string]interface{}{"id": entry.Id, "weight": entry.Weight})
 }
 
 func createEntry(c echo.Context, data Input) (*Record, error) {
@@ -92,5 +92,29 @@ func DeleteEntry(c echo.Context) error {
 		c.JSON(http.StatusOK, fmt.Sprintf("Entree ", rid, " inconnue"))
 	}
 
+	return c.JSON(http.StatusOK, "")
+}
+
+func UpdateEntry(c echo.Context) error {
+	rid, _ := strconv.Atoi(c.Param("rid"))
+	m := echo.Map{}
+	err := c.Bind(&m)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	quantity := 0
+	comment := ""
+	if m["quantity"] != nil {
+		quantity = int(m["quantity"].(float64))
+	}
+	if m["comment"] != nil {
+		comment = m["comment"].(string)
+	}
+
+	delerr := UpdateRecord(session, uint(rid), quantity, comment)
+	if delerr != nil {
+		return c.JSON(http.StatusBadRequest, delerr.Error())
+	}
 	return c.JSON(http.StatusOK, "")
 }
