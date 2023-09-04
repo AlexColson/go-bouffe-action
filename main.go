@@ -26,6 +26,12 @@ func NewAppServer() *echo.Echo {
 	unsecured.GET("ping", PingHandler)
 
 	unsecured.GET("scale", Scale)
+	unsecured.GET("entities", GetEntities)
+	unsecured.GET("entity/:eid", GetOneEntity)
+
+	unsecured.POST("input", CreateEntryHandler)
+	unsecured.GET("input", GetEntries)
+	unsecured.DELETE("input/:rid", DeleteEntry)
 
 	return e
 }
@@ -55,6 +61,8 @@ func InitAppServer(version string) (*echo.Echo, *echo.Group) {
 	e.Use(middleware.CORS())
 	e.HideBanner = true
 
+	// e.Use(middleware.Logger())
+
 	notSecured := e.Group(fmt.Sprintf("api/%s/", version))
 
 	e.GET("swagger/*", echoSwagger.WrapHandler)
@@ -70,6 +78,7 @@ func InitAppServer(version string) (*echo.Echo, *echo.Group) {
 
 func main() {
 	session := GetDbSession()
+	LoadConfiguration("configuration.xlsx")
 
 	if session == nil {
 		panic("Failed connect to database")
