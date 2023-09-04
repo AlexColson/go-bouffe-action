@@ -168,7 +168,7 @@ function retrieveProduct(eid) {
 
 }
 
-function addHTMLEntry(id, provider, product, quantity, weight) {
+function addHTMLEntry(id, provider, product, quantity, weight, comment) {
     var table = document.getElementById("table-content");
     var x = table.rows.length;
     var row = table.insertRow(1);
@@ -181,7 +181,11 @@ function addHTMLEntry(id, provider, product, quantity, weight) {
     row.insertCell(3).innerHTML = quantity;
     row.insertCell(4).innerHTML = weight;
     row.insertCell(5).innerHTML = '<input type="button" class="btn btn-danger btn-sm" id="delrow" onclick="deleteRow(\'' + id + '\')" value="Supprimer" />';
-    row.insertCell(6).innerHTML = '';
+    row.insertCell(6).innerHTML = "";
+    if (comment != "" ) {
+        last_element_id=id
+        UpdateCommentField(comment)
+    }
 
     // increment the number of items
     last_items = last_items + 1;
@@ -215,7 +219,7 @@ function addTableEntry(provider, product, weight) {
         weight = json['weight']
 
         // create a new entry in the table
-        addHTMLEntry(id, provider, product ,DEFAULT_QUANTITY, weight);
+        addHTMLEntry(id, provider, product ,DEFAULT_QUANTITY, weight, "");
     });
 }
 
@@ -232,8 +236,8 @@ function fetchExistingEntries() {
     .then((json) => {
         for(var key in json) {
             entry = json[key]
-            console.log(entry)
-            addHTMLEntry(entry.id, entry.provider, entry.product ,entry.quantity, entry.weight);
+            // console.log(entry)
+            addHTMLEntry(entry.id, entry.provider, entry.product ,entry.quantity, entry.weight, entry.comment);
         }
     })
 }
@@ -280,15 +284,19 @@ function processComment(value) {
     })
     .then((response) => {
         // add a clip with the message as a tooltip
-        text  = '<i class="fa-solid fa-paperclip" '
-        text += 'data-bs-toggle="tooltip" data-bs-placement="top" '
-        text += 'title="' + value + '">&nbsp</i>'
-        document.getElementById(last_element_id).cells[6].innerHTML = text
-
-        // empty the barcode entry line
-        var entry = document.getElementById("barcode-entry");
-        entry.value = "";
+        UpdateCommentField(value);
     })
+}
+
+function UpdateCommentField(value) {
+    text = '<i class="fa-solid fa-paperclip" ';
+    text += 'data-bs-toggle="tooltip" data-bs-placement="top" ';
+    text += 'title="' + value + '">&nbsp</i>';
+    document.getElementById(last_element_id).cells[6].innerHTML = text;
+
+    // empty the barcode entry line
+    var entry = document.getElementById("barcode-entry");
+    entry.value = "";
 }
 
 function deleteRow(id) {

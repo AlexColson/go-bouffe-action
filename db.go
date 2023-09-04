@@ -34,7 +34,7 @@ func GetDbSession() *gorm.DB {
 
 func GetRecords(db *gorm.DB, fromDate string) ([]Record, error) {
 	var records []Record
-	query := db.Order("id desc")
+	query := db.Order("Id asc")
 
 	if fromDate != "" {
 		query = query.Where("DATE(timestamp) = ?", fromDate)
