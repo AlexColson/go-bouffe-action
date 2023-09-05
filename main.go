@@ -28,6 +28,8 @@ func NewAppServer() *echo.Echo {
 	unsecured.GET("input", GetEntries)
 	unsecured.DELETE("input/:rid", DeleteEntry)
 	unsecured.PUT("input/:rid", UpdateEntry)
+
+	unsecured.GET("download", CreateXLSXFile)
 	return e
 }
 

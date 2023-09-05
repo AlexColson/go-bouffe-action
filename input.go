@@ -3,13 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
 
@@ -117,4 +121,65 @@ func UpdateEntry(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, delerr.Error())
 	}
 	return c.JSON(http.StatusOK, "")
+}
+
+func CreateXLSXFile(c echo.Context) error {
+	// Create a new Excel file
+	f := excelize.NewFile()
+	defer f.Close()
+	// Create a new sheet
+	today := time.Now().Format("2006-01-02")
+	sheetName := "Saisies"
+	index, err := f.NewSheet(sheetName)
+	f.DeleteSheet("Sheet1")
+	// Set active sheet of the Excel file
+	f.SetActiveSheet(index)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create XLSX sheet"})
+	}
+
+	// Set the column headers
+	f.SetCellValue(sheetName, "A1", "#")
+	f.SetCellValue(sheetName, "B1", "Fournisseur")
+	f.SetCellValue(sheetName, "C1", "Produit")
+	f.SetCellValue(sheetName, "D1", "Poids")
+	f.SetCellValue(sheetName, "E1", "Remarques")
+
+	// Get the date in the desired format
+
+	records, err := GetRecords(session, "")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get records"})
+	}
+
+	log.Println("Export: begin")
+	row := 2
+	for i, record := range records {
+		log.Println(fmt.Sprintf("%d -> %s", i, record))
+
+		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), int(record.Id))
+		f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), record.Provider)
+		f.SetCellValue(sheetName, fmt.Sprintf("C%d", row), record.Product)
+		f.SetCellValue(sheetName, fmt.Sprintf("D%d", row), record.Weight)
+		f.SetCellValue(sheetName, fmt.Sprintf("E%d", row), record.Comment)
+		row++
+
+	}
+	log.Println("Export: end")
+
+	// Save the Excel file
+	dir := os.TempDir()
+	name := fmt.Sprintf("data_%s.xlsx", today)
+	filename := filepath.Join(dir, name)
+	// filename = "/tmp/data22_2023-09-04.xlsx"
+	f.Close()
+	log.Println("Saving file to " + filename)
+	if err := f.SaveAs(filename); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create XLSX file"})
+	}
+	defer os.Remove(filename)
+	// Send the file back to the browser as an attachment
+	return c.Attachment(filename, name)
 }
