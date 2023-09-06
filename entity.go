@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/tealeg/xlsx"
+	"github.com/xuri/excelize/v2"
 )
 
 // EntityType represents the type of an entity.
@@ -89,7 +89,7 @@ func GetEntitiesByType(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func LoadConfiguration(filename string) {
+func loadConfiguration(filename string) {
 	// Initialize logger
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -97,37 +97,43 @@ func LoadConfiguration(filename string) {
 	log.Printf("Configuration: filename/%s", filename)
 
 	// Open the Excel file
-	xlFile, err := xlsx.OpenFile(filename)
+	xlFile, err := excelize.OpenFile(filename)
 	if err != nil {
 		log.Fatalf("Error opening Excel file: %v", err)
 	}
 
 	// Load Providers data
 	log.Println("Configuration: loading/providers/begin")
-	loadSheetData(xlFile.Sheet["Fournisseurs"], PROVIDER_CODE_COLUMN, PROVIDER_NAME_COLUMN)
+	loadSheetData(xlFile, "Fournisseurs", PROVIDER_CODE_COLUMN, PROVIDER_NAME_COLUMN)
 	log.Println("Configuration: loading/providers/end")
 
 	// Load Products data
 	log.Println("Configuration: loading/products/begin")
-	loadSheetData(xlFile.Sheet["Produits"], PRODUCT_CODE_COLUMN, PRODUCT_NAME_COLUMN)
+	loadSheetData(xlFile, "Produits", PRODUCT_CODE_COLUMN, PRODUCT_NAME_COLUMN)
 	log.Println("Configuration: loading/products/end")
 }
 
-func loadSheetData(sheet *xlsx.Sheet, codeColumn, nameColumn int) {
-	counter := 0
-	for _, row := range sheet.Rows {
-		if len(row.Cells) < 2 {
-			continue
-		}
-		providerCodeCell := row.Cells[codeColumn-1]
-		providerNameCell := row.Cells[nameColumn-1]
+func loadSheetData(file *excelize.File, sheetName string, codeColumn, nameColumn int) {
+	// Get the sheet by name
+	sheetIndex, err := file.GetSheetIndex(sheetName)
+	if err != nil {
+		log.Printf("Sheet not found: %s", sheetName)
+		return
+	}
 
-		providerCode := providerCodeCell.String()
-		providerName := providerNameCell.String()
+	sheet := file.GetSheetName(sheetIndex)
+
+	counter := 0
+	rows, _ := file.GetRows(sheet)
+	for y, row := range rows {
+		if y == 0 {
+			continue // Skip the header row
+		}
+		providerCode := row[codeColumn-1]
+		providerName := row[nameColumn-1]
 
 		if providerCode != "" && providerName != "" {
 			entities[strings.ToUpper(providerCode)] = providerName
-			log.Println(strings.ToUpper(providerCode), providerName)
 			counter++
 		}
 	}
