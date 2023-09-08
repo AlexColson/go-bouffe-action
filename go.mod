@@ -3,10 +3,11 @@ module bouffe-action
 go 1.19
 
 require (
+	github.com/BurntSushi/toml v1.3.2
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/swaggo/echo-swagger v1.4.0
-	github.com/tealeg/xlsx v1.0.5
 	github.com/xuri/excelize/v2 v2.7.0
+	go.bug.st/serial v1.6.0
 	gorm.io/driver/sqlite v1.5.3
 	gorm.io/gorm v1.25.4
 )
@@ -15,6 +16,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/creack/goselect v0.1.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
