@@ -140,7 +140,7 @@ func CreateXLSXFile(c echo.Context) error {
 	}
 
 	// Set the column headers
-	f.SetCellValue(sheetName, "A1", "#")
+	f.SetCellValue(sheetName, "A1", "#Date")
 	f.SetCellValue(sheetName, "B1", "Fournisseur")
 	f.SetCellValue(sheetName, "C1", "Produit")
 	f.SetCellValue(sheetName, "D1", "Poids")
@@ -148,21 +148,41 @@ func CreateXLSXFile(c echo.Context) error {
 
 	// Get the date in the desired format
 
-	records, err := GetRecords(session, "")
+	// records, err := GetRecords(session, "")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get records"})
 	}
 
+	// Run the grouped query
+	var result []struct {
+		Date     string  `json:"date"`
+		Provider string  `json:"provider"`
+		Product  string  `json:"product"`
+		Comment  string  `json:comment`
+		Total    float64 `json:"total"`
+	}
+
+	session.Table("records").
+		Select("strftime('%Y-%m-%d', timestamp) as date, provider, product, comment, sum(quantity * weight) as total").
+		Group("date, provider, product").
+		Order("date, provider, product").
+		Scan(&result)
+
+	// // Print the query result
+	// for _, r := range result {
+	// 	log.Println(fmt.Sprintf(("Date: %s, Provider: %s, Product: %s, Total: %f\n", r.Date, r.Provider, r.Product, r.Total)))
+	// }
+
 	log.Println("Export: begin")
 	row := 2
-	for i, record := range records {
-		log.Println(fmt.Sprintf("%d -> %s", i, record))
+	for _, record := range result {
+		// log.Println(fmt.Sprintf("%d -> %s", i, record))
 
-		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), int(record.Id))
+		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), record.Date)
 		f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), record.Provider)
 		f.SetCellValue(sheetName, fmt.Sprintf("C%d", row), record.Product)
-		f.SetCellValue(sheetName, fmt.Sprintf("D%d", row), record.Weight)
+		f.SetCellValue(sheetName, fmt.Sprintf("D%d", row), record.Total)
 		f.SetCellValue(sheetName, fmt.Sprintf("E%d", row), record.Comment)
 		row++
 
