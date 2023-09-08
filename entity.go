@@ -89,7 +89,7 @@ func GetEntitiesByType(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func loadConfiguration(filename string) {
+func LoadConfiguration(filename string) {
 	// Initialize logger
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -128,6 +128,9 @@ func loadSheetData(file *excelize.File, sheetName string, codeColumn, nameColumn
 	for y, row := range rows {
 		if y == 0 {
 			continue // Skip the header row
+		}
+		if len(row) < 2 {
+			continue
 		}
 		providerCode := row[codeColumn-1]
 		providerName := row[nameColumn-1]

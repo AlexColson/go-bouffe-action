@@ -173,7 +173,7 @@ func CreateXLSXFile(c echo.Context) error {
 	dir := os.TempDir()
 	name := fmt.Sprintf("data_%s.xlsx", today)
 	filename := filepath.Join(dir, name)
-	// filename = "/tmp/data22_2023-09-04.xlsx"
+
 	f.Close()
 	log.Println("Saving file to " + filename)
 	if err := f.SaveAs(filename); err != nil {
