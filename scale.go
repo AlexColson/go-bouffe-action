@@ -30,14 +30,15 @@ func RealScale(serialPort io.ReadCloser, dataChannel chan<- ScaleReading) {
 
 		// line will have a format like
 		// ASNG/W+  0.00  kg
+		// log.Println(line)
 		stable := line[1] == 'S'
-		words := strings.Split(line, " ")
-		weight, err := strconv.ParseFloat(words[1], 64)
+		words := strings.Split(line[4:], " ")
+		weight, err := strconv.ParseFloat(words[2], 64)
 		if err != nil {
 			log.Fatal("Unable to parse string scale reading:" + line)
 		}
 		reading := ScaleReading{float32(weight), stable}
-		dataChannel <- reading
+		sendData(dataChannel, reading)
 	}
 }
 
@@ -49,8 +50,19 @@ func FakeScale(dataChannel chan<- ScaleReading) {
 			weigth *= 0.3 + rand.Float32()
 		}
 		reading := ScaleReading{weigth, stable}
-		dataChannel <- reading
+		sendData(dataChannel, reading)
+
 		time.Sleep(1 * time.Second)
+	}
+}
+
+// Send data in the channel if it's
+func sendData(dataChannel chan<- ScaleReading, reading ScaleReading) {
+	select {
+	case dataChannel <- reading:
+		// fmt.Println("Sent")
+	default:
+		// fmt.Println("Channel is full. Skipping value.")
 	}
 }
 
@@ -93,7 +105,7 @@ func InitSerial(baudRate int) (io.ReadCloser, error) {
 	options := serial.Mode{
 		BaudRate: baudRate, // Set the baud rate
 		DataBits: 8,
-		Parity:   serial.EvenParity,
+		Parity:   serial.NoParity,
 		StopBits: serial.OneStopBit,
 	}
 
