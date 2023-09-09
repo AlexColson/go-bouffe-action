@@ -11,7 +11,7 @@
 // flask endpoint
 const SERVER_URL="http://127.0.0.1:5000/api/v1"
 
-const SCALE_TIMER_INTERVAL_MS = 2000;
+const SCALE_TIMER_INTERVAL_MS = 1000;
 const INPUT_FOCUS_INTERVAL_MS = 1000;
 
 const BARCODE_PROVIDER_MARKER = 'F';
