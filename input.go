@@ -169,15 +169,9 @@ func CreateXLSXFile(c echo.Context) error {
 		Order("date, provider, product").
 		Scan(&result)
 
-	// // Print the query result
-	// for _, r := range result {
-	// 	log.Println(fmt.Sprintf(("Date: %s, Provider: %s, Product: %s, Total: %f\n", r.Date, r.Provider, r.Product, r.Total)))
-	// }
-
 	log.Println("Export: begin")
 	row := 2
 	for _, record := range result {
-		// log.Println(fmt.Sprintf("%d -> %s", i, record))
 
 		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), record.Date)
 		f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), record.Provider)
