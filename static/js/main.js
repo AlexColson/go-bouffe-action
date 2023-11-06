@@ -130,8 +130,8 @@ function retrieveProvider(eid) {
     })
     .then((json) => {
         var provider = document.getElementById("last-provider");
-        provider.innerHTML = json['ename'];
-        last_provider = json['ename'];
+        provider.innerHTML = json['name'];
+        last_provider = json['name'];
 
         var entry = document.getElementById("barcode-entry");
         entry.value = "";
@@ -161,7 +161,7 @@ function retrieveProduct(eid) {
             return;
         }
 
-        addTableEntry(last_provider, json['ename'], last_weight);
+        addTableEntry(last_provider, json['name'], json['category'] , last_weight);
         entry.value = "";
     })
     .catch(() => {
@@ -170,7 +170,7 @@ function retrieveProduct(eid) {
 
 }
 
-function addHTMLEntry(id, provider, product, quantity, weight, comment) {
+function addHTMLEntry(id, provider, product, category, quantity, weight, comment) {
     var table = document.getElementById("table-content");
     var x = table.rows.length;
     var row = table.insertRow(1);
@@ -180,10 +180,11 @@ function addHTMLEntry(id, provider, product, quantity, weight, comment) {
     row.insertCell(0).innerHTML = `<th scope="row">${id}</th>`;
     row.insertCell(1).innerHTML = provider;
     row.insertCell(2).innerHTML = product;
-    row.insertCell(3).innerHTML = quantity;
-    row.insertCell(4).innerHTML = weight;
-    row.insertCell(5).innerHTML = '<input type="button" class="btn btn-danger btn-sm" id="delrow" onclick="deleteRow(\'' + id + '\')" value="Supprimer" />';
-    row.insertCell(6).innerHTML = "";
+    row.insertCell(3).innerHTML = category;
+    row.insertCell(4).innerHTML = quantity;
+    row.insertCell(5).innerHTML = weight;
+    row.insertCell(6).innerHTML = '<input type="button" class="btn btn-danger btn-sm" id="delrow" onclick="deleteRow(\'' + id + '\')" value="Supprimer" />';
+    row.insertCell(7).innerHTML = "";
     if (comment != "" ) {
         last_element_id=id
         UpdateCommentField(comment)
@@ -197,13 +198,14 @@ function addHTMLEntry(id, provider, product, quantity, weight, comment) {
 }
 
 // add a new entry in the table
-function addTableEntry(provider, product, weight) {
+function addTableEntry(provider, product, category, weight) {
     // send the item to the backend
     fetch(SERVER_URL + "/input", {
         method: "POST",
         body: JSON.stringify({
             provider: provider,
             product: product,
+            category: category,
             quantity: DEFAULT_QUANTITY,
             weight: weight
         }),
@@ -221,7 +223,7 @@ function addTableEntry(provider, product, weight) {
         weight = json['weight']
 
         // create a new entry in the table
-        addHTMLEntry(id, provider, product ,DEFAULT_QUANTITY, weight, "");
+        addHTMLEntry(id, provider, product , category,DEFAULT_QUANTITY, weight, "");
     });
 }
 
@@ -274,7 +276,7 @@ function fetchExistingEntries() {
         for(var key in json) {
             entry = json[key]
             // console.log(entry)
-            addHTMLEntry(entry.id, entry.provider, entry.product ,entry.quantity, entry.weight, entry.comment);
+            addHTMLEntry(entry.id, entry.provider, entry.product , entry.category,entry.quantity, entry.weight, entry.comment);
         }
     })
 }
@@ -294,7 +296,7 @@ function processMultiplier(value) {
             }
         })
         .then((response) => {
-            document.getElementById(last_element_id).cells[3].innerHTML = value
+            document.getElementById(last_element_id).cells[4].innerHTML = value
 
             // empty the barcode entry line on success
             var entry = document.getElementById("barcode-entry");
@@ -329,7 +331,7 @@ function UpdateCommentField(value) {
     text = '<i class="fa-solid fa-paperclip" ';
     text += 'data-bs-toggle="tooltip" data-bs-placement="top" ';
     text += 'title="' + value + '">&nbsp</i>';
-    document.getElementById(last_element_id).cells[6].innerHTML = text;
+    document.getElementById(last_element_id).cells[7].innerHTML = text;
 
     // empty the barcode entry line
     var entry = document.getElementById("barcode-entry");

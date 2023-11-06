@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,40 +17,45 @@ type EntityType struct {
 	Marker string `json:"marker"`
 }
 
-// Entity represents an entity.
-type Entity struct {
+// EntitiesDefinition represents an entity.
+type EntitiesDefinition struct {
 	Provider EntityType `json:"provider"`
 	Product  EntityType `json:"product"`
 }
 
-var entities map[string]string = make(map[string]string)
+type Entity struct {
+	Code     string `json:"code"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
+}
 
-var entityKind Entity = Entity{
+var entities map[string]Entity = make(map[string]Entity)
+
+var entityTypeDefinition EntitiesDefinition = EntitiesDefinition{
 	Provider: EntityType{Name: "provider", Marker: "F"},
 	Product:  EntityType{Name: "product", Marker: "P"},
 }
 
 // Constants
 const (
-	PROVIDER_CODE_COLUMN = 1
-	PROVIDER_NAME_COLUMN = 2
-	PRODUCT_CODE_COLUMN  = 1
-	PRODUCT_NAME_COLUMN  = 2
+	CODE_COLUMN     = 0
+	NAME_COLUMN     = 1
+	CATEGORY_COLUMN = 2
 )
 
 func isProvider(eid string) bool {
-	return strings.ToUpper(string(eid[0])) == entityKind.Provider.Marker
+	return strings.ToUpper(string(eid[0])) == entityTypeDefinition.Provider.Marker
 }
 
 func isProduct(eid string) bool {
-	return strings.ToUpper(string(eid[0])) == entityKind.Product.Marker
+	return strings.ToUpper(string(eid[0])) == entityTypeDefinition.Product.Marker
 }
 
 func GetType(eid string) string {
 	if isProvider(eid) {
-		return entityKind.Provider.Name
+		return entityTypeDefinition.Provider.Name
 	} else if isProduct(eid) {
-		return entityKind.Product.Name
+		return entityTypeDefinition.Product.Name
 	}
 	return ""
 }
@@ -61,31 +67,31 @@ func GetEntities(c echo.Context) error {
 func GetOneEntity(c echo.Context) error {
 	eid := c.Param("eid")
 	if entityName, exists := entities[eid]; exists {
-		entity := map[string]interface{}{
-			"ename": entityName,
-			"eid":   eid,
-			"etype": GetType(eid),
-		}
-		return c.JSON(http.StatusOK, entity)
+		// entity := map[string]interface{}{
+		// 	"ename": entityName,
+		// 	"eid":   eid,
+		// 	"etype": GetType(eid),
+		// }
+		return c.JSON(http.StatusOK, entityName)
 	}
-	// log.Println(json.Marshal(entities))
+	log.Println(json.Marshal(entities))
 	return c.String(http.StatusNotFound, fmt.Sprintf("The entity '%s' does not exist", eid))
 }
 
 func GetEntitiesByType(c echo.Context) error {
 	etype := c.Param("etype")
-	values := []string{}
-	entity := Entity{}
+	values := []Entity{}
+	entityDef := EntitiesDefinition{}
 	for k, v := range entities {
-		if strings.ToLower(etype) == entity.Provider.Name && isProvider(k) {
+		if strings.ToLower(etype) == entityDef.Provider.Name && isProvider(k) {
 			values = append(values, v)
 		}
-		if strings.ToLower(etype) == entity.Product.Name && isProduct(k) {
+		if strings.ToLower(etype) == entityDef.Product.Name && isProduct(k) {
 			values = append(values, v)
 		}
 	}
 
-	response := map[string][]string{"entities": values}
+	response := map[string][]Entity{"entities": values}
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -104,16 +110,16 @@ func LoadConfiguration(filename string) {
 
 	// Load Providers data
 	log.Println("Configuration: loading/providers/begin")
-	loadSheetData(xlFile, "Fournisseurs", PROVIDER_CODE_COLUMN, PROVIDER_NAME_COLUMN)
+	loadSheetData(xlFile, "Fournisseurs")
 	log.Println("Configuration: loading/providers/end")
 
 	// Load Products data
 	log.Println("Configuration: loading/products/begin")
-	loadSheetData(xlFile, "Produits", PRODUCT_CODE_COLUMN, PRODUCT_NAME_COLUMN)
+	loadSheetData(xlFile, "Produits")
 	log.Println("Configuration: loading/products/end")
 }
 
-func loadSheetData(file *excelize.File, sheetName string, codeColumn, nameColumn int) {
+func loadSheetData(file *excelize.File, sheetName string) {
 	// Get the sheet by name
 	sheetIndex, err := file.GetSheetIndex(sheetName)
 	if err != nil {
@@ -132,11 +138,12 @@ func loadSheetData(file *excelize.File, sheetName string, codeColumn, nameColumn
 		if len(row) < 2 {
 			continue
 		}
-		providerCode := row[codeColumn-1]
-		providerName := row[nameColumn-1]
-
-		if providerCode != "" && providerName != "" {
-			entities[strings.ToUpper(providerCode)] = providerName
+		entityCode := strings.ToUpper(row[CODE_COLUMN])
+		entityName := row[NAME_COLUMN]
+		entityCategory := row[CATEGORY_COLUMN]
+		log.Printf(entityCode + " / " + entityName + " / " + entityCategory)
+		if entityCode != "" && entityName != "" {
+			entities[entityCode] = Entity{Code: entityCode, Name: entityName, Category: entityCategory}
 			counter++
 		}
 	}

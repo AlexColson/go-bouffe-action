@@ -26,6 +26,7 @@ var RECORDS map[uint]Record = map[uint]Record{}
 type Input struct {
 	Provider string  `json:"provider"`
 	Product  string  `json:"product"`
+	Category string  `json:"category"`
 	Weigth   float64 `json:"weight"`
 	Quantity int     `json:"quantity"`
 }
@@ -64,6 +65,7 @@ func createEntry(c echo.Context, data Input) (*Record, error) {
 	record := Record{
 		Provider:  data.Provider,
 		Product:   data.Product,
+		Category:  data.Category,
 		Weight:    weigth,
 		Quantity:  data.Quantity,
 		Timestamp: now,
@@ -80,8 +82,8 @@ func createEntry(c echo.Context, data Input) (*Record, error) {
 }
 
 func GetEntries(c echo.Context) error {
-	today := c.Param("date")
-	records, _ := GetRecords(session, today)
+	filterDate := c.Param("date")
+	records, _ := GetRecords(session, filterDate)
 	return c.JSON(http.StatusOK, records)
 }
 

@@ -11,6 +11,7 @@ type Record struct {
 	// gorm.Model
 	Id        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
 	Provider  string    `json:"provider"`
+	Category  string    `json:"category"`
 	Product   string    `json:"product"`
 	Weight    float64   `json:"weight"`
 	Quantity  int       `json:"quantity"`
