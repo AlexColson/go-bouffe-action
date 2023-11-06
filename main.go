@@ -17,6 +17,14 @@ import (
 
 var dataChannel chan ScaleReading = make(chan ScaleReading, 1)
 
+// ServerHeader middleware adds a `Server` header to the response.
+func ServerHeader(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
+		return next(c)
+	}
+}
+
 func NewAppServer() *echo.Echo {
 	e, unsecured := InitAppServer("v1")
 
@@ -52,6 +60,7 @@ type Config struct {
 func InitAppServer(version string) (*echo.Echo, *echo.Group) {
 	e := echo.New()
 	e.Use(middleware.CORS())
+	e.Use(ServerHeader)
 	e.HideBanner = true
 
 	// e.Use(middleware.Logger())
@@ -78,7 +87,9 @@ func main() {
 	// load config if there's one
 	var conf Config
 	if _, err := toml.DecodeFile("conf.toml", &conf); err != nil {
-		// handle error
+		log.Println("Impossible de lire le fichier de configuration conf.toml")
+		fmt.Scanln()
+		log.Panic()
 	}
 
 	// Start the goroutine to read data from the serial port
@@ -87,8 +98,10 @@ func main() {
 		go FakeScale(dataChannel)
 	} else {
 		serialPort, err := InitSerial(9600) // Adjust these values
-		if err != nil {
-			log.Fatal(err)
+		if err == nil {
+			log.Println("Impossible de communiquer avec la balance")
+			fmt.Scanln()
+			log.Panic()
 		}
 		defer serialPort.Close()
 		go RealScale(serialPort, dataChannel)
@@ -96,7 +109,7 @@ func main() {
 	}
 
 	if session == nil {
-		panic("Failed connect to database")
+		panic("Impossible de se connecter a la base de donnee")
 	}
 
 	e := NewAppServer()
