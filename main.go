@@ -37,6 +37,7 @@ func NewAppServer() *echo.Echo {
 
 	unsecured.POST("input", CreateEntryHandler)
 	unsecured.GET("input", GetEntries)
+	unsecured.GET("input/:date", GetEntries)
 	unsecured.DELETE("input/:rid", DeleteEntry)
 	unsecured.PUT("input/:rid", UpdateEntry)
 

@@ -75,6 +75,7 @@
               </tr>
             </tbody>
           </table>
+          
         </div>
 
         <div class="col-md-1">&nbsp;</div>
@@ -113,10 +114,17 @@
           <div class="row border-bottom">
               <button class="btn btn-success" onclick="downloadXLS()">Fin de journ&eacute;e</button>
           </div>
+            
+
 
         </div>
       </div>
-
+      <div class="col-md-2">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-primary" onclick="showTodayOnly()">Aujourd'hui</button>
+          <button type="button" class="btn btn-primary" onclick="showHistory()">Historique</button>
+        </div>
+      </div>
       <div class="row my-2 p-2 bg-white">
         <div class="col-md-6 mb-3">
           <label for="barcode-entry" class="form-label">Ligne de saisie</label>

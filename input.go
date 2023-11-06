@@ -80,8 +80,8 @@ func createEntry(c echo.Context, data Input) (*Record, error) {
 }
 
 func GetEntries(c echo.Context) error {
-
-	records, _ := GetRecords(session, "")
+	today := c.Param("date")
+	records, _ := GetRecords(session, today)
 	return c.JSON(http.StatusOK, records)
 }
 

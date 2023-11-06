@@ -33,6 +33,7 @@ var last_weight = 0.0;
 var last_items = 1;
 var last_element_id = 0;
 
+var filter_date = "";
 
 //----- functions
 function sleep(ms) {
@@ -54,7 +55,8 @@ function setup() {
     // setup the scale monitoring every seconds or so
     setInterval(readScaleValue, SCALE_TIMER_INTERVAL_MS);
     setInterval(setInputFocus, INPUT_FOCUS_INTERVAL_MS);
-    fetchExistingEntries();
+
+    showTodayOnly()
 
     // bind the enter key to the barcode button
     window.addEventListener("keypress", (event) => {
@@ -223,8 +225,43 @@ function addTableEntry(provider, product, weight) {
     });
 }
 
+
+function clearTable(){
+    var table = document.getElementById("table-content");
+    last_items = 1;
+    last_element_id = 0;
+
+    var rows = table.rows;
+    var i = rows.length;
+    while (--i) {
+        table.deleteRow(i);
+      }
+}
+
+function setTodayFilter() {
+    let now = new Date()
+    let datestr = now.toISOString().split('T')[0]
+    filter_date = datestr
+}
+
+function showTodayOnly() {
+    setTodayFilter();
+    clearTable();
+    fetchExistingEntries();
+}
+
+function showHistory() {
+    filter_date = "";
+    clearTable();
+    fetchExistingEntries();
+}
+
 function fetchExistingEntries() {
-    fetch(SERVER_URL + "/input", {
+    var baseUrl = SERVER_URL + "/input";
+    if (filter_date != "") {
+        baseUrl +="/"+filter_date
+    }
+    fetch(baseUrl, {
         method: "GET",
         headers: {
             "Content-Type": "application/json; charset=UTF-8"
