@@ -125,10 +125,10 @@ func loadSheetData(file *excelize.File, sheetName string, codeColumn, nameColumn
 
 	counter := 0
 	rows, _ := file.GetRows(sheet)
-	for y, row := range rows {
-		if y == 0 {
-			continue // Skip the header row
-		}
+	for _, row := range rows {
+		// if y == 0 {
+		// 	continue // Skip the header row
+		// }
 		if len(row) < 2 {
 			continue
 		}
