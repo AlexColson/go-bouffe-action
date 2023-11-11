@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -67,11 +68,7 @@ func GetEntities(c echo.Context) error {
 func GetOneEntity(c echo.Context) error {
 	eid := c.Param("eid")
 	if entityName, exists := entities[eid]; exists {
-		// entity := map[string]interface{}{
-		// 	"ename": entityName,
-		// 	"eid":   eid,
-		// 	"etype": GetType(eid),
-		// }
+
 		return c.JSON(http.StatusOK, entityName)
 	}
 	log.Println(json.Marshal(entities))
@@ -80,19 +77,23 @@ func GetOneEntity(c echo.Context) error {
 
 func GetEntitiesByType(c echo.Context) error {
 	etype := c.Param("etype")
+	log.Printf("Retrieve entities of type " + etype)
 	values := []Entity{}
-	entityDef := EntitiesDefinition{}
+
 	for k, v := range entities {
-		if strings.ToLower(etype) == entityDef.Provider.Name && isProvider(k) {
+		if strings.ToUpper(etype) == entityTypeDefinition.Provider.Marker && isProvider(k) {
 			values = append(values, v)
 		}
-		if strings.ToLower(etype) == entityDef.Product.Name && isProduct(k) {
+		if strings.ToUpper(etype) == entityTypeDefinition.Product.Marker && isProduct(k) {
 			values = append(values, v)
 		}
 	}
-
-	response := map[string][]Entity{"entities": values}
-	return c.JSON(http.StatusOK, response)
+	vals := values[:]
+	sort.Slice(vals, func(i, j int) bool {
+		return values[i].Code < values[j].Code
+	})
+	log.Println(vals)
+	return c.JSON(http.StatusOK, vals)
 }
 
 func LoadConfiguration(filename string) {
@@ -141,7 +142,7 @@ func loadSheetData(file *excelize.File, sheetName string) {
 		entityCode := strings.ToUpper(row[CODE_COLUMN])
 		entityName := row[NAME_COLUMN]
 		entityCategory := row[CATEGORY_COLUMN]
-		log.Printf(entityCode + " / " + entityName + " / " + entityCategory)
+		// log.Printf(entityCode + " / " + entityName + " / " + entityCategory)
 		if entityCode != "" && entityName != "" {
 			entities[entityCode] = Entity{Code: entityCode, Name: entityName, Category: entityCategory}
 			counter++

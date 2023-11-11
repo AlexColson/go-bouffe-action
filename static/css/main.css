@@ -1,3 +1,43 @@
 .tBodyDiv {
     height: 600px;
 }
+
+@font-face {
+    font-family: LibreBarcode39;
+    src: url("/static/fontawesome/webfonts/LibreBarcode39-Regular.ttf");
+}
+
+
+
+.barcode-header {
+    text-align: center;
+    font-size: 48px;
+}
+
+.barcode {
+    font-family: LibreBarcode39;
+    font-size: 48px;
+    text-align: center;
+    border : solid 1px;
+    white-space: "pre";
+    max-height: fit-content;
+}
+
+.barcode-text {
+    font-size: 32;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.barcode-line {
+    padding: 0;
+    
+}
+
+@media print {
+    .pagebreak {
+        clear: both;
+        page-break-after: always;
+    }
+}

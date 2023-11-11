@@ -33,6 +33,7 @@ func NewAppServer() *echo.Echo {
 
 	unsecured.GET("scale", Scale)
 	unsecured.GET("entities", GetEntities)
+	unsecured.GET("entitiesByType/:etype", GetEntitiesByType)
 	unsecured.GET("entity/:eid", GetOneEntity)
 
 	unsecured.POST("input", CreateEntryHandler)
@@ -73,6 +74,7 @@ func InitAppServer(version string) (*echo.Echo, *echo.Group) {
 	static := e.Group("static")
 	static.Use(middleware.Static(filepath.Join("static")))
 	e.File("/", "index.html")
+	e.File("/print", "print.html")
 
 	// e.Logger.SetLevel(loglv1.WARN)
 	// e.Use(acecho.LogException())
