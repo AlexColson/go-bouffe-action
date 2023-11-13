@@ -77,7 +77,7 @@ func GetOneEntity(c echo.Context) error {
 
 func GetEntitiesByType(c echo.Context) error {
 	etype := c.Param("etype")
-	log.Printf("Retrieve entities of type " + etype)
+	// log.Printf("Retrieve entities of type " + etype)
 	values := []Entity{}
 
 	for k, v := range entities {
@@ -92,7 +92,7 @@ func GetEntitiesByType(c echo.Context) error {
 	sort.Slice(vals, func(i, j int) bool {
 		return values[i].Code < values[j].Code
 	})
-	log.Println(vals)
+	// log.Println(vals)
 	return c.JSON(http.StatusOK, vals)
 }
 
