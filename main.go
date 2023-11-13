@@ -63,6 +63,7 @@ func Scale(c echo.Context) error {
 type Config struct {
 	UseFakeScale     bool
 	UsdScaleDeviceId string
+	Composte         float64
 }
 
 func InitAppServer(version string) (*echo.Echo, *echo.Group) {
@@ -106,6 +107,8 @@ func main() {
 		fmt.Scanln()
 		log.Panic()
 	}
+
+	COMPOST_PLASTIC_CASE_WEIGHT = float64(conf.Composte)
 
 	// Start the goroutine to read data from the serial port
 	if conf.UseFakeScale {

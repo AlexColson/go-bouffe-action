@@ -19,7 +19,7 @@ import (
 
 var session *gorm.DB = GetDbSession()
 
-const COMPOST_PLASTIC_CASE_WEIGHT = 1.2 // You can adjust the value accordingly
+var COMPOST_PLASTIC_CASE_WEIGHT = 1.2 // You can adjust the value accordingly
 
 var RECORDS map[uint]Record = map[uint]Record{}
 
