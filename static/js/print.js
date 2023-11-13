@@ -36,19 +36,20 @@ function printType(entityType) {
                 currentTable =  document.createElement('table');
                 currentTable.className = "table table-striped align-middle"
                 root.appendChild(currentTable);
-                console.log(" ==> Starting new table")
+                // console.log(" ==> Starting new table")
                 currentCol = 0;
 
             }
 
             if ((currentCol == 0) || (currentCol > maxCol)) {
-                console.log(" ==> Adding new line")
+                // console.log(" ==> Adding new line")
                 currentLine =  currentTable.insertRow();
+                currentLine.className = "barcode-line"
                 currentCol = 0;
             }
 
             var cell = document.createElement('td');
-            cell.className = "barcode-line";
+            cell.className = "barcode-col";
 
             var code = document.createElement('div');
             code.className = "barcode";
@@ -60,7 +61,7 @@ function printType(entityType) {
             
             cell.appendChild(code);
             cell.appendChild(name);
-            console.log(cell.innerHTML)
+            // console.log(cell.innerHTML)
             currentLine.appendChild(cell);
 
             currentCol +=1;
