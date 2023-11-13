@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/labstack/echo/v4 v4.11.1
+	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/swaggo/echo-swagger v1.4.0
 	github.com/xuri/excelize/v2 v2.7.0
 	go.bug.st/serial v1.6.0
