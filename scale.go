@@ -80,14 +80,14 @@ func ReadScale(dataChannel <-chan ScaleReading) map[string]interface{} {
 }
 
 // Function to initialize the serial port connection
-func InitSerial(baudRate int) (io.ReadCloser, error) {
+func InitSerial(baudRate int, UsdScaleDeviceId string) (io.ReadCloser, error) {
 	ports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	selectedPort := ""
 	if len(ports) == 0 {
-		fmt.Println("No available serial ports found.")
+		fmt.Println("ERREUR!: Aucun port serie detecte.")
 		return nil, nil
 	} else {
 		for _, port := range ports {
@@ -96,12 +96,21 @@ func InitSerial(baudRate int) (io.ReadCloser, error) {
 				fmt.Printf("   USB ID     %s:%s\n", port.VID, port.PID)
 				fmt.Printf("   USB serial %s\n", port.SerialNumber)
 			}
+			if UsdScaleDeviceId == port.VID+":"+port.PID {
+				selectedPort = port.Name
+			}
 		}
 	}
 
 	// Select the first found serial port
-	selectedPort := ports[0].Name
-	log.Println("Using port " + selectedPort)
+	if selectedPort != "" {
+		log.Println("Utilitation du port " + selectedPort + " pour comminiquer avec la balance")
+	} else {
+		log.Println("ERREUR!:Impossible de trouver le port de la balance: '" + UsdScaleDeviceId + "'")
+		log.Println("ERREUR!:Verifier que le cable est bien relie a la balance, ainsi que la configuration dans conf.toml.")
+		fmt.Scanln()
+		log.Panic()
+	}
 	options := serial.Mode{
 		BaudRate: baudRate, // Set the baud rate
 		DataBits: 8,

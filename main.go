@@ -56,7 +56,8 @@ func Scale(c echo.Context) error {
 }
 
 type Config struct {
-	UseFakeScale bool
+	UseFakeScale     bool
+	UsdScaleDeviceId string
 }
 
 func InitAppServer(version string) (*echo.Echo, *echo.Group) {
@@ -90,7 +91,13 @@ func main() {
 	// load config if there's one
 	var conf Config
 	if _, err := toml.DecodeFile("conf.toml", &conf); err != nil {
-		log.Println("Impossible de lire le fichier de configuration conf.toml")
+		log.Println("ERREUR!:Impossible de lire le fichier de configuration conf.toml")
+		fmt.Scanln()
+		log.Panic()
+	}
+
+	if conf.UsdScaleDeviceId == "" {
+		log.Println("ERREUR!: Le parametre UsdScaleDeviceId dans conf.toml doit etre defini")
 		fmt.Scanln()
 		log.Panic()
 	}
@@ -100,9 +107,9 @@ func main() {
 		log.Println("Utilisation d'une balance fictive")
 		go FakeScale(dataChannel)
 	} else {
-		serialPort, err := InitSerial(9600) // Adjust these values
+		serialPort, err := InitSerial(9600, conf.UsdScaleDeviceId) // Adjust these values
 		if err == nil {
-			log.Println("Impossible de communiquer avec la balance")
+			log.Println("ERREUR!: Impossible de communiquer avec la balance")
 			fmt.Scanln()
 			log.Panic()
 		}
@@ -112,7 +119,7 @@ func main() {
 	}
 
 	if session == nil {
-		panic("Impossible de se connecter a la base de donnee")
+		panic("ERREUR!: Impossible de se connecter a la base de donnee")
 	}
 
 	e := NewAppServer()

@@ -146,7 +146,9 @@ func loadSheetData(file *excelize.File, sheetName string) {
 
 		if entityCode != "" && entityName != "" {
 			if entity, exists := entities[entityCode]; exists {
-				log.Panic("Le code " + entityCode + " existe deja:" + entity.Name)
+				log.Println("ERREUR!: Le code " + entityCode + " existe deja:" + entity.Name)
+				fmt.Scanln()
+				log.Panic()
 			}
 			entities[entityCode] = Entity{Code: entityCode, Name: entityName, Category: entityCategory}
 			counter++
