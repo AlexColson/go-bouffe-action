@@ -43,11 +43,16 @@ func NewAppServer() *echo.Echo {
 	unsecured.PUT("input/:rid", UpdateEntry)
 
 	unsecured.GET("download", CreateXLSXFile)
+	unsecured.GET("quit", Quit)
 	return e
 }
 
 func PingHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, time.Now())
+}
+
+func Quit(c echo.Context) error {
+	return c.Echo().Shutdown(nil)
 }
 
 func Scale(c echo.Context) error {

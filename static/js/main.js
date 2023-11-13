@@ -32,7 +32,8 @@ var last_provider = "";
 var last_weight = 0.0;
 var last_items = 1;
 var last_element_id = 0;
-
+var inputFocusTimeout = 0;
+var scaleTimeout = 0;
 var filter_date = "";
 
 //----- functions
@@ -53,8 +54,8 @@ function animateEntry(ms) {
 // setup the page
 function setup() {
     // setup the scale monitoring every seconds or so
-    setInterval(readScaleValue, SCALE_TIMER_INTERVAL_MS);
-    setInterval(setInputFocus, INPUT_FOCUS_INTERVAL_MS);
+    scaleTimeout = setInterval(readScaleValue, SCALE_TIMER_INTERVAL_MS);
+    inputFocusTimeout = setInterval(setInputFocus, INPUT_FOCUS_INTERVAL_MS);
 
     showTodayOnly()
 
@@ -394,6 +395,15 @@ function downloadXLS() {
             console.log(exc);
         }
     })
+}
+
+
+function Quit() {
+    fetch(SERVER_URL + "/quit")
+    clearInterval(inputFocusTimeout);
+    clearInterval(scaleTimeout);
+    var rootPage = document.getElementById("main-page");
+    rootPage.innerHTML = "<div class='position-absolute top-25 start-50'><div class='alert alert-info'><h1> Veuillez fermer cet onglet</h1></div></div>"
 }
 
 //----- begin
