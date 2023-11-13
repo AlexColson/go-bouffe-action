@@ -144,9 +144,10 @@ func CreateXLSXFile(c echo.Context) error {
 	// Set the column headers
 	f.SetCellValue(sheetName, "A1", "#Date")
 	f.SetCellValue(sheetName, "B1", "Fournisseur")
-	f.SetCellValue(sheetName, "C1", "Produit")
-	f.SetCellValue(sheetName, "D1", "Poids")
-	f.SetCellValue(sheetName, "E1", "Remarques")
+	f.SetCellValue(sheetName, "C1", "Categorie")
+	f.SetCellValue(sheetName, "D1", "Produit")
+	f.SetCellValue(sheetName, "E1", "Poids")
+	f.SetCellValue(sheetName, "F1", "Remarques")
 
 	// Get the date in the desired format
 
@@ -160,15 +161,16 @@ func CreateXLSXFile(c echo.Context) error {
 	var result []struct {
 		Date     string  `json:"date"`
 		Provider string  `json:"provider"`
+		Category string  `json:"category"`
 		Product  string  `json:"product"`
-		Comment  string  `json:comment`
+		Comment  string  `json:"comment"`
 		Total    float64 `json:"total"`
 	}
 
 	session.Table("records").
-		Select("strftime('%Y-%m-%d', timestamp) as date, provider, product, comment, sum(quantity * weight) as total").
-		Group("date, provider, product").
-		Order("date, provider, product").
+		Select("strftime('%Y-%m-%d', timestamp) as date, provider, category, product, comment, sum(quantity * weight) as total").
+		Group("date, provider, category, product").
+		Order("date, provider, category, product").
 		Scan(&result)
 
 	log.Println("Export: begin")
@@ -177,9 +179,10 @@ func CreateXLSXFile(c echo.Context) error {
 
 		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), record.Date)
 		f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), record.Provider)
-		f.SetCellValue(sheetName, fmt.Sprintf("C%d", row), record.Product)
-		f.SetCellValue(sheetName, fmt.Sprintf("D%d", row), record.Total)
-		f.SetCellValue(sheetName, fmt.Sprintf("E%d", row), record.Comment)
+		f.SetCellValue(sheetName, fmt.Sprintf("C%d", row), record.Category)
+		f.SetCellValue(sheetName, fmt.Sprintf("D%d", row), record.Product)
+		f.SetCellValue(sheetName, fmt.Sprintf("E%d", row), record.Total)
+		f.SetCellValue(sheetName, fmt.Sprintf("F%d", row), record.Comment)
 		row++
 
 	}
