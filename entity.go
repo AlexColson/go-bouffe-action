@@ -68,7 +68,6 @@ func GetEntities(c echo.Context) error {
 func GetOneEntity(c echo.Context) error {
 	eid := c.Param("eid")
 	if entityName, exists := entities[eid]; exists {
-
 		return c.JSON(http.StatusOK, entityName)
 	}
 	log.Println(json.Marshal(entities))
@@ -142,8 +141,13 @@ func loadSheetData(file *excelize.File, sheetName string) {
 		entityCode := strings.ToUpper(row[CODE_COLUMN])
 		entityName := row[NAME_COLUMN]
 		entityCategory := row[CATEGORY_COLUMN]
-		// log.Printf(entityCode + " / " + entityName + " / " + entityCategory)
+
+		// enforce unique codes
+
 		if entityCode != "" && entityName != "" {
+			if entity, exists := entities[entityCode]; exists {
+				log.Panic("Le code " + entityCode + " existe deja:" + entity.Name)
+			}
 			entities[entityCode] = Entity{Code: entityCode, Name: entityName, Category: entityCategory}
 			counter++
 		}
