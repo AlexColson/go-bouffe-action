@@ -36,6 +36,8 @@ var inputFocusTimeout = 0;
 var scaleTimeout = 0;
 var filter_date = "";
 
+var errorTimer = null;
+
 //----- functions
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -51,6 +53,18 @@ function animateEntry(ms) {
     });
 }
 
+
+function showError(message) {
+    if (errorTimer !== null) {
+        // Clear previous timeout:
+        clearTimeout(errorTimer);
+        errorTimer = null;
+    }
+    var errorElement = document.getElementById("error-block");
+    errorElement.innerHTML = message;
+    errorElement.style.display = 'block';
+    errorTimer = setTimeout(function(){ errorElement.style.display = 'none'; }, 2000);
+}
 // setup the page
 function setup() {
     // setup the scale monitoring every seconds or so
@@ -215,6 +229,12 @@ function addTableEntry(provider, product, category, weight) {
         }
     })
     .then((response) => {
+        if (response.status != 200) {
+            response.json().then(json => {
+                showError(json['erreur']);
+            })
+            throw 'cancel';
+        }
         return response.json()
     })
     .then((json) => {
@@ -224,6 +244,7 @@ function addTableEntry(provider, product, category, weight) {
         weight = json['weight']
 
         // create a new entry in the table
+        console.log("entry "+id)
         addHTMLEntry(id, provider, product , category,DEFAULT_QUANTITY, weight, "");
     });
 }

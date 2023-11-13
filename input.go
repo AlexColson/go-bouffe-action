@@ -55,7 +55,7 @@ func createEntry(c echo.Context, data Input) (*Record, error) {
 	weigth := data.Weigth
 	if strings.ToLower(data.Product) == "composte" {
 		if data.Weigth-COMPOST_PLASTIC_CASE_WEIGHT < 0 {
-			return nil, errors.New("Poids trop faible")
+			return nil, errors.New("Poids trop faible, doit etre superieur a :" + strconv.FormatFloat(COMPOST_PLASTIC_CASE_WEIGHT, 'f', -1, 64) + "kg")
 		} else {
 			weigth = float64(data.Weigth) - COMPOST_PLASTIC_CASE_WEIGHT
 			weigth = math.Floor(weigth*100) / 100 // Assurer que nous gardons seulement 2 décimales
