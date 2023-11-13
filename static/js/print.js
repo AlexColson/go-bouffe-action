@@ -67,7 +67,7 @@ function printType(entityType) {
             
             console.log(entry)
          }
-
+         var iDiv = addPageBreak(root);
     //    console.log(root.innerHTML)
     })
     .catch(() => {
@@ -90,8 +90,6 @@ function getRoot() {
 // setup the page
 function print() {
     printType("F");
-    // var root = getRoot();
-    // addPageBreak(root);
     printType("P");
 }
 
