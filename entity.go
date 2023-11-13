@@ -132,10 +132,10 @@ func loadSheetData(file *excelize.File, sheetName string) {
 
 	counter := 0
 	rows, _ := file.GetRows(sheet)
-	for _, row := range rows {
-		// if y == 0 {
-		// 	continue // Skip the header row
-		// }
+	for y, row := range rows {
+		if y == 0 {
+			continue // Skip the header row
+		}
 		if len(row) < 2 {
 			continue
 		}
