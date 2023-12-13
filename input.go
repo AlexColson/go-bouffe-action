@@ -95,7 +95,7 @@ func DeleteEntry(c echo.Context) error {
 	errDel := DeleteRecord(session, uint(rid))
 
 	if errDel != nil {
-		c.JSON(http.StatusOK, fmt.Sprintf("Entree ", rid, " inconnue"))
+		c.JSON(http.StatusOK, fmt.Sprintf("Entree %d inconnue", rid))
 	}
 
 	return c.JSON(http.StatusOK, "")
