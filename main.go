@@ -117,7 +117,7 @@ func main() {
 		go FakeScale(dataChannel)
 	} else {
 		serialPort, err := InitSerial(9600, conf.UsdScaleDeviceId) // Adjust these values
-		if err == nil {
+		if err != nil {
 			log.Println("ERREUR!: Impossible de communiquer avec la balance")
 			fmt.Scanln()
 			log.Panic()
