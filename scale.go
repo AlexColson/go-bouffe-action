@@ -23,7 +23,7 @@ type ScaleReading struct {
 func RealScale(serialPort io.ReadCloser, dataChannel chan<- ScaleReading) {
 	reader := bufio.NewReader(serialPort)
 	for {
-		line, err := reader.ReadString('\n')
+		rawline, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -31,11 +31,13 @@ func RealScale(serialPort io.ReadCloser, dataChannel chan<- ScaleReading) {
 		// line will have a format like
 		// ASNG/W+  0.00  kg
 		// log.Println(line)
-		stable := line[1] == 'S'
-		words := strings.Split(line[4:], " ")
-		weight, err := strconv.ParseFloat(words[2], 64)
+		line := strings.TrimSpace(rawline[:])
+		stable := line[0] == 'S'
+		words := strings.Fields(line)
+		weight, err := strconv.ParseFloat(words[1], 64)
 		if err != nil {
-			log.Fatal("Unable to parse string scale reading:" + line)
+			log.Println("Unable to parse string scale reading:" + line)
+			continue
 		}
 		reading := ScaleReading{float32(weight), stable}
 		sendData(dataChannel, reading)
@@ -122,5 +124,5 @@ func InitSerial(baudRate int, UsdScaleDeviceId string) (io.ReadCloser, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return serialPort, nil
+	return serialPort, err
 }
